@@ -1,6 +1,6 @@
 import express from 'express';
 import { createServer } from 'http';
-import { Server } from 'socket.io';
+import { Server, Socket } from 'socket.io';
 import path from 'path';
 import cors from 'cors';
 import helmet from 'helmet';
@@ -45,6 +45,22 @@ app.use(compression());
 app.use(cors({ origin: config.CORS_ORIGIN }));
 app.use(express.json());
 app.use(morgan('combined', { stream: { write: message => logger.info(message.trim()) } }));
+
+// Attach socket to req based on X-Socket-Id header
+app.use((req, res, next) => {
+  const socketId = req.headers['x-socket-id'];
+  if (socketId && typeof socketId === 'string') {
+    const socket = io.sockets.sockets.get(socketId);
+    if (socket) {
+      req.socket = socket; // Attach the socket to req
+    } else {
+      logger.warn(`Socket not found for ID: ${socketId}`);
+    }
+  } else {
+    logger.warn('No socket ID provided in request headers');
+  }
+  next();
+});
 
 // Set up static file serving and SPA fallback
 if (config.NODE_ENV === 'production') {

@@ -20,9 +20,7 @@ interface CreateSessionRequest {
 declare global {
   namespace Express {
     interface Request {
-      socket: {
-        id: string;
-      };
+      socket?: Socket; // Use Socket type from socket.io
     }
   }
 }
@@ -32,6 +30,10 @@ router.post('/sessions', async (
   res: express.Response
 ) => {
   try {
+    if (!req.socket) {
+      return res.status(400).json({ error: 'No socket connection found' });
+    }
+
     const { name, playerName } = req.body;
 
     // Validate session name
@@ -50,7 +52,7 @@ router.post('/sessions', async (
 
     // Create game master player
     const gameMaster = {
-      id: req.socket.id,
+      id: req.socket.id, // Now safe to use
       name: playerName,
       score: 0,
       attempts: 0
