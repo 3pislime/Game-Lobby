@@ -13,7 +13,8 @@
     "build:server": "tsc -p tsconfig.server.json",
     "build:client": "tsc && vite build",
     "build:all": "npm run build:client && npm run build:server",
-    "dev:server": "tsx watch src/server/index.ts"
+    "dev:server": "tsx watch src/server/index.ts",
+    "migrate": "supabase migration up"
   },
   "dependencies": {
     "@faker-js/faker": "^8.4.1",
